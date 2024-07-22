@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AddEditDialogController"
+          hgap="10" vgap="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <Label text="Title:"/>
+    <TextField fx:id="titleField" GridPane.columnIndex="1"/>
+
+    <Label text="Case Type:" GridPane.rowIndex="1"/>
+    <TextField fx:id="caseTypeField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+    <Label text="Motherboard:" GridPane.rowIndex="2"/>
+    <TextField fx:id="motherboardField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+    <Label text="CPU:" GridPane.rowIndex="3"/>
+    <TextField fx:id="cpuField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+    <Label text="CPU Cooler:" GridPane.rowIndex="4"/>
+    <TextField fx:id="cpuCoolerField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+    <Label text="RAM:" GridPane.rowIndex="5"/>
+    <TextField fx:id="ramField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+    <Label text="GPU:" GridPane.rowIndex="6"/>
+    <TextField fx:id="gpuField" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+    <Label text="Power Supply:" GridPane.rowIndex="7"/>
+    <TextField fx:id="powerSupplyField" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+
+    <Label text="Mass Storage:" GridPane.rowIndex="8"/>
+    <TextField fx:id="massStorageField" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+
+    <HBox spacing="10" alignment="center" GridPane.rowIndex="9" GridPane.columnSpan="2">
+        <Button text="OK" fx:id="okButton" onAction="#handleOk"/>
+        <Button text="Cancel" fx:id="cancelButton" onAction="#handleCancel"/>
+    </HBox>
+</GridPane>
