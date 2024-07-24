@@ -5,11 +5,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.ComputerBuild;
@@ -23,7 +24,6 @@ public class MainController {
 
     @FXML
     private TableView<ComputerBuild> tableView;
-
     @FXML
     private TableColumn<ComputerBuild, String> titleColumn;
     @FXML
@@ -43,97 +43,73 @@ public class MainController {
     @FXML
     private TableColumn<ComputerBuild, String> massStorageColumn;
 
-    private ObservableList<ComputerBuild> computerBuilds = FXCollections.observableArrayList();
     private MainApp mainApp;
 
+    private ObservableList<ComputerBuild> computerBuildsData = FXCollections.observableArrayList();
+
     @FXML
-    public void initialize() {
-        // Set up cell value factories for the columns
-        titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
-        caseTypeColumn.setCellValueFactory(cellData -> cellData.getValue().caseTypeProperty());
-        motherboardColumn.setCellValueFactory(cellData -> cellData.getValue().motherboardProperty());
-        cpuColumn.setCellValueFactory(cellData -> cellData.getValue().cpuProperty());
-        cpuCoolerColumn.setCellValueFactory(cellData -> cellData.getValue().cpuCoolerProperty());
-        ramColumn.setCellValueFactory(cellData -> cellData.getValue().ramProperty());
-        gpuColumn.setCellValueFactory(cellData -> cellData.getValue().gpuProperty());
-        powerSupplyColumn.setCellValueFactory(cellData -> cellData.getValue().powerSupplyProperty());
-        massStorageColumn.setCellValueFactory(cellData -> cellData.getValue().massStorageProperty());
+    private void initialize() {
+        // Initialize the table columns.
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        caseTypeColumn.setCellValueFactory(new PropertyValueFactory<>("caseType"));
+        motherboardColumn.setCellValueFactory(new PropertyValueFactory<>("motherboard"));
+        cpuColumn.setCellValueFactory(new PropertyValueFactory<>("cpu"));
+        cpuCoolerColumn.setCellValueFactory(new PropertyValueFactory<>("cpuCooler"));
+        ramColumn.setCellValueFactory(new PropertyValueFactory<>("ram"));
+        gpuColumn.setCellValueFactory(new PropertyValueFactory<>("gpu"));
+        powerSupplyColumn.setCellValueFactory(new PropertyValueFactory<>("powerSupply"));
+        massStorageColumn.setCellValueFactory(new PropertyValueFactory<>("massStorage"));
 
-        // Set the items in the TableView
-        tableView.setItems(computerBuilds);
-
-        // Load the data from the database
+        // Load data from the database.
         loadComputerBuilds();
-    }
-
-    private void loadComputerBuilds() {
-        try {
-            List<ComputerBuild> builds = DatabaseUtil.getAllComputerBuilds();
-            computerBuilds.setAll(builds);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load computer builds from the database.");
-        }
     }
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
     }
 
+    private void loadComputerBuilds() {
+        try {
+            List<ComputerBuild> builds = DatabaseUtil.getAllComputerBuilds();
+            computerBuildsData.setAll(builds);
+            tableView.setItems(computerBuildsData);
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Could not load data from the database.");
+            e.printStackTrace();
+        }
+    }
+
     @FXML
-    public void handleAdd() {
-        System.out.println("Handle Add called");
-        showAddEditDialog(null, "Add Computer Build");
+    private void handleAdd() {
+        ComputerBuild tempBuild = new ComputerBuild();
+        boolean okClicked = showAddEditDialog(tempBuild);
+        if (okClicked) {
+            try {
+                DatabaseUtil.insertComputerBuild(tempBuild);
+                computerBuildsData.add(tempBuild);
+            } catch (SQLException e) {
+                showErrorAlert("Database Error", "Could not save the new build to the database.");
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
     private void handleEdit() {
         ComputerBuild selectedBuild = tableView.getSelectionModel().getSelectedItem();
         if (selectedBuild != null) {
-            System.out.println("Handle Edit called");
-            showAddEditDialog(selectedBuild, "Edit Computer Build");
-        } else {
-            showAlert("No Selection", "Please select a computer build to edit.");
-        }
-    }
-
-    private void showAddEditDialog(ComputerBuild computerBuild, String title) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddEditDialog.fxml"));
-            Parent root = loader.load();
-
-            AddEditDialogController controller = loader.getController();
-            controller.setDialogStage(new Stage());
-            controller.setComputerBuild(computerBuild);
-
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle(title);
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(mainApp.getPrimaryStage());
-            dialogStage.setScene(new Scene(root));
-            controller.setDialogStage(dialogStage);
-
-            dialogStage.showAndWait();
-
-            if (controller.isOkClicked()) {
-                ComputerBuild updatedBuild = controller.getComputerBuild();
-                if (computerBuild == null) {
-                    // Adding new build
-                    System.out.println("Adding new build");
-                    computerBuilds.add(updatedBuild);
-                    saveComputerBuild(updatedBuild);
-                } else {
-                    // Editing existing build
-                    System.out.println("Editing existing build");
-                    tableView.refresh();
-                    updateComputerBuild(updatedBuild);
+            boolean okClicked = showAddEditDialog(selectedBuild);
+            if (okClicked) {
+                try {
+                    DatabaseUtil.updateComputerBuild(selectedBuild);
+                    loadComputerBuilds(); // Refresh the table view
+                } catch (SQLException e) {
+                    showErrorAlert("Database Error", "Could not update the build in the database.");
+                    e.printStackTrace();
                 }
-            } else {
-                System.out.println("Dialog cancelled or no OK clicked");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error", "Unable to open the add/edit dialog.");
+        } else {
+            showWarningAlert("No Selection", "Please select a build in the table.");
         }
     }
 
@@ -141,54 +117,57 @@ public class MainController {
     private void handleRemove() {
         ComputerBuild selectedBuild = tableView.getSelectionModel().getSelectedItem();
         if (selectedBuild != null) {
-            // Remove from ObservableList
-            computerBuilds.remove(selectedBuild);
-
-            // Delete from database
-            deleteComputerBuild(selectedBuild);
+            try {
+                DatabaseUtil.deleteComputerBuild(selectedBuild.getTitle());
+                computerBuildsData.remove(selectedBuild);
+            } catch (SQLException e) {
+                showErrorAlert("Database Error", "Could not delete the selected build.");
+                e.printStackTrace();
+            }
         } else {
-            showAlert("No Selection", "Please select a computer build to remove.");
+            showWarningAlert("No Selection", "Please select a build in the table.");
         }
     }
 
-    private void saveComputerBuild(ComputerBuild computerBuild) {
+    private boolean showAddEditDialog(ComputerBuild computerBuild) {
         try {
-            System.out.println("Saving new build");
-            DatabaseUtil.insertComputerBuild(computerBuild);
-            showAlert("Success", "Computer build added successfully.");
-        } catch (SQLException e) {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("/fxml/AddEditDialog.fxml"));
+            GridPane page = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Build");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(mainApp.getPrimaryStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            AddEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setComputerBuild(computerBuild);
+
+            dialogStage.showAndWait();
+
+            return controller.isOkClicked();
+        } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Unable to save the computer build.");
+            return false;
         }
     }
 
-    private void updateComputerBuild(ComputerBuild computerBuild) {
-        try {
-            System.out.println("Updating build");
-            DatabaseUtil.updateComputerBuild(computerBuild);
-            showAlert("Success", "Computer build updated successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Unable to update the computer build.");
-        }
-    }
-
-    private void deleteComputerBuild(ComputerBuild computerBuild) {
-        try {
-            System.out.println("Deleting build");
-            DatabaseUtil.deleteComputerBuild(computerBuild.getId()); // Call the method to delete from database
-            showAlert("Success", "Computer build removed successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Unable to remove the computer build.");
-        }
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    private void showErrorAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showWarningAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }
