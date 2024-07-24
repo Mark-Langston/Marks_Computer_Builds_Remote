@@ -17,25 +17,31 @@ public class LoginController {
     @FXML
     private Button loginButton;
 
+    private MainApp mainApp;
+
     @FXML
     private void handleLogin() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
-        // Print username and password for debugging
-        System.out.println("Username: " + username);
-        System.out.println("Password: " + password);
+        // Validate input fields
+        if (username.isEmpty() || password.isEmpty()) {
+            showErrorAlert("Input Error", "Username and password cannot be empty.");
+            return;
+        }
 
-        // Check if user exists and validate password
-        if (DatabaseUtil.validateUser(username, password)) {
-            mainApp.showMainScreen(); // Switch to the main screen on successful login
-        } else {
-            // Show error message
-            showErrorAlert("Invalid login credentials", "Please check your username and password and try again.");
+        try {
+            // Check if user exists and validate password
+            if (DatabaseUtil.validateUser(username, password)) {
+                mainApp.showMainScreen(); // Switch to the main screen on successful login
+            } else {
+                showErrorAlert("Invalid login credentials", "Please check your username and password and try again.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorAlert("Error", "An error occurred during login. Please try again.");
         }
     }
-
-    private MainApp mainApp;
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
