@@ -1,4 +1,4 @@
-# Mark's Computer Builds
+# Mark's Computer Builds - Remote
 
 Mark's Computer Builds is a JavaFX application that allows users to manage and organize their computer builds. The application integrates with a remote PostgreSQL database to store and retrieve build information.
 
@@ -26,8 +26,8 @@ Watch a short demo of the project:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/Mark-Langston/Marks_Computer_Builds.git
-    cd Marks_Computer_Builds
+    git clone https://github.com/Mark-Langston/Marks_Computer_Builds_Remote.git
+    cd Marks_Computer_Builds_Remote
     ```
 
 2. Set up the PostgreSQL database:
