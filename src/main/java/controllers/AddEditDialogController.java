@@ -1,6 +1,7 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import models.ComputerBuild;
@@ -94,7 +95,26 @@ public class AddEditDialogController {
     }
 
     private boolean isInputValid() {
-        // Implement validation logic here
-        return true;
+        String errorMessage = "";
+
+        if (titleField.getText() == null || titleField.getText().length() == 0) {
+            errorMessage += "No valid title!\n";
+        }
+        // Add additional validation for other fields...
+
+        if (errorMessage.length() == 0) {
+            return true;
+        } else {
+            showAlert("Invalid Fields", "Please correct invalid fields.\n" + errorMessage);
+            return false;
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
