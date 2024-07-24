@@ -26,7 +26,7 @@ Watch a short demo of the project:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/Marks_Computer_Builds.git
+    git clone https://github.com/Mark-Langston/Marks_Computer_Builds.git
     cd Marks_Computer_Builds
     ```
 
