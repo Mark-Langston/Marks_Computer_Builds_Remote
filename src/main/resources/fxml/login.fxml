@@ -23,9 +23,9 @@
         </Label>
         <GridPane>
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="162.333251953125" minWidth="10.0" prefWidth="157.6666259765625" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="167.6666259765625" minWidth="10.0" prefWidth="115.3333740234375" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="104.3333740234375" minWidth="10.0" prefWidth="50.3333740234375" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="162.333" minWidth="10.0" prefWidth="157.667" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="167.667" minWidth="10.0" prefWidth="115.333" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="104.333" minWidth="10.0" prefWidth="50.333" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
